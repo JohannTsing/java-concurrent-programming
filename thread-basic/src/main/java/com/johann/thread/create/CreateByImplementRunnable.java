@@ -28,8 +28,18 @@ public class CreateByImplementRunnable {
 
     public static void main(String[] args) {
         Thread thread = null;
+//        for (int i = 0; i < 5; i++) {
+//            thread = new Thread(new RunTarget(),"RunnableThread-"+(threadNo++));
+//            thread.start();
+//        }
+
+        // 使用匿名内部类的方式创建线程
         for (int i = 0; i < 5; i++) {
-            thread = new Thread(new RunTarget(),"RunnableThread-"+(threadNo++));
+            thread = new Thread(() -> {
+                for  (int i1 = 0; i1 < MAX_TURN; i1++) {
+                    System.out.println("【线程名称："+ ThreadUtils.getCurrentThreadName()+"~~线程ID："+ThreadUtils.getCurrentThreadId()+"】, 轮次: "+ i1);
+                }
+            },"RunnableThread-"+(threadNo++));
             thread.start();
         }
         System.out.println("【线程名称："+ThreadUtils.getCurrentThreadName()+"~~线程ID："+ThreadUtils.getCurrentThreadId()+"】, 运行结束");
