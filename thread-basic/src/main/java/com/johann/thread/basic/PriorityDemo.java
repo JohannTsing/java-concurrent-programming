@@ -1,5 +1,7 @@
 package com.johann.thread.basic;
 
+import com.johann.utils.Print;
+
 /*
  * 测试线程优先级
  * @author Johann
@@ -12,12 +14,12 @@ public class PriorityDemo {
             super("thread-"+threadNo);
             threadNo++;
         }
-git
-        public long opprtunities = 0;
+
+        public long opportunities = 0;
         @Override
         public void run() {
-            for (int i = 0; ; i++) {
-                opprtunities++;
+            while(true) {
+                opportunities++;
             }
         }
     }
@@ -43,8 +45,9 @@ git
         }
 
         for (PriorityThread thread : threads) {
-            System.out.println(thread.getName() + " 优先级：" + thread.getPriority() + " 竞争次数：" + thread.opprtunities);
+            Print.toConsole(thread.getName() + " 优先级：" + thread.getPriority() + " 竞争次数：" + thread.opportunities);
         }
+        Print.shutdownThreadPool(2);
     }
 
 }

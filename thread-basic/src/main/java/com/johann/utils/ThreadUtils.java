@@ -1,5 +1,7 @@
 package com.johann.utils;
 
+import java.util.concurrent.locks.LockSupport;
+
 /**
  * @author: Johann
  */
@@ -19,5 +21,21 @@ public class ThreadUtils {
      */
     public static long getCurrentThreadId() {
         return Thread.currentThread().getId();
+    }
+
+    public static void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 阻塞当前线程，直到时间到达
+     * @param millis
+     */
+    public static void parkMillis(long millis) {
+        LockSupport.parkNanos(millis * 1000000L);
     }
 }

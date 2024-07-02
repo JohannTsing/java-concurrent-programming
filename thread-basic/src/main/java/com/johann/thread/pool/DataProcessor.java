@@ -1,5 +1,8 @@
 package com.johann.thread.pool;
 
+import org.checkerframework.checker.units.qual.A;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -17,13 +20,44 @@ import java.util.concurrent.*;
  * 此外，我们使用executor.shutdown()和executor.awaitTermination()方法来关闭线程池并等待所有任务完成。
  * 如果在指定的时间内任务没有完成，我们将调用executor.shutdownNow()方法尝试取消所有正在执行的任务，并返回尚未开始执行的任务列表
  *
- * 。
  */
 public class DataProcessor {
     private static final int N = 10000; // 假设N为10000
     private static final int M = N / 1000 + 1;
 
-    public void process(List<OrigionData> originDataList) {
+    public void doTask(){
+        List<OrigionData> firstProcessData = firstProcess();
+        // 后续处理
+    }
+
+    /**
+     * 数据处理的第一步
+     * @return
+     */
+    public List<OrigionData> firstProcess(){
+        // 填充原始数据，步骤省略...
+        List<OrigionData> originDataList = new ArrayList<>();
+        List<OrigionData> processedData = new ArrayList<>();
+        // 多线程处理数据
+        List<Future<?>> futures = process(originDataList);
+        for (Future<?> future:futures) {
+            try {
+                processedData.add((OrigionData) future.get());
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        // 将处理后的数据返回
+        return processedData;
+    }
+
+
+    /**
+     * 数据处理
+     * @param originDataList
+     */
+    public List<Future<?>> process(List<OrigionData> originDataList) {
         ThreadPoolExecutor executor = new ThreadPoolExecutor(
                 M, M, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(),
@@ -31,16 +65,18 @@ public class DataProcessor {
                 new ThreadPoolExecutor.AbortPolicy()
         );
 
+        List<Future<?>> futures = new ArrayList<>();
+
         for (OrigionData data : originDataList) {
+            // 无法阻塞线程
 //            executor.execute(() -> {
 //                dataProcessing(data);
 //            });
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    dataProcessing(data);
-                }
-            });
+
+            // 可以阻塞主线程
+            futures.add(
+                    executor.submit(() -> dataProcessing(data))
+            );
         }
 
         executor.shutdown();
@@ -54,10 +90,13 @@ public class DataProcessor {
             executor.shutdownNow();
             Thread.currentThread().interrupt();
         }
+
+        return futures;
     }
 
-    public void dataProcessing(OrigionData data) {
+    public OrigionData dataProcessing(OrigionData data) {
         // 在这里处理数据
+        return data;
     }
 }
 
